@@ -1,12 +1,33 @@
-from pyimagesearch.shapedetector import ShapeDetector
 import imutils
 import cv2
+import json
+import threading
 import numpy as np
+
+from pyimagesearch.shapedetector import ShapeDetector
+from SimpleWebSocketServer import SimpleExampleServer, WebSocket
 # load the image and resize it to a smaller factor so that
 # the shapes can be approximated better
 
 capture = cv2.VideoCapture(0)
+clients = []
+server = None
 
+class SimpleWSServer(WebSocket):
+    def handleConnected(self):
+        clients.append(self)
+
+    def handleClose(self):
+        clients.remove(self)
+
+def run_server():
+    global server
+    server = SimpleWebSocketServer('', 9000, SimpleWSServer,
+                                   selectInterval=(1000.0 / 15) / 1000)
+    server.serveforever()
+
+t = threading.Thread(target=run_server)
+t.start()
 
 while True:
     ret, image = capture.read()
@@ -64,7 +85,7 @@ while True:
 
         # show the output image
         cv2.imshow("Image", image)
-
+    #questo non credo funzioni
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

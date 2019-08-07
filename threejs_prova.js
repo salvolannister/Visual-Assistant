@@ -10,7 +10,7 @@ renderer.gammaFactor = 2.2;
 document.body.appendChild( renderer.domElement );
 
 
-camera.position.set(0, 0, 1);
+camera.position.set(0, 0, 3);
 // var axes = new THREE.AxisHelper(60);
 // axes.position.set(0, 0, 0);
 // scene.add(axes);
