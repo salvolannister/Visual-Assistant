@@ -5,7 +5,7 @@ import threading
 import numpy as np
 
 from pyimagesearch.shapedetector import ShapeDetector
-from SimpleWebSocketServer import SimpleExampleServer, WebSocket, SimpleWebSocketServer
+from SimpleWebSocketServer import  SimpleWebSocketServer,WebSocket
 
 # load the image and resize it to a smaller factor so that
 # the shapes can be approximated better
@@ -14,6 +14,7 @@ capture = cv2.VideoCapture(0)
 clients = []
 server = None
 
+
 class SimpleWSServer(WebSocket):
     def handleConnected(self):
         clients.append(self)
@@ -21,14 +22,17 @@ class SimpleWSServer(WebSocket):
     def handleClose(self):
         clients.remove(self)
 
+
 def run_server():
     global server
     server = SimpleWebSocketServer('', 9000, SimpleWSServer,
                                    selectInterval=(1000.0 / 15) / 1000)
     server.serveforever()
 
-t = threading.Thread(target=run_server)
+
+t=threading.Thread(target=run_server)
 t.start()
+
 kernel1 = np.ones((8, 8), np.uint8)
 kernel2 = np.ones((2, 2), np.uint8)
 
@@ -52,10 +56,13 @@ while True:
     mask_red = mask_0 + mask_1
     res = cv2.bitwise_and(image, image, mask=mask_red)
 
+    '''  
     cv2.imshow('Image previews', image)
     cv2.imshow('bit_wise', res)
+    '''
     resized = imutils.resize(image, width=300)
     ratio = image.shape[0] / float(resized.shape[0])
+
 
     # convert the resized image to grayscale, blur it slightly,
     # and threshold it
@@ -70,12 +77,13 @@ while True:
    # res = cv2.bitwise_and(dilatation, resized, mask=mask_red)
     #thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1]
     canny = cv2.Canny(dilatation , 80, 180, 3)
-
+    '''
     cv2.imshow('red mask', mask_red)
     cv2.imshow('erosion', erosion)
     cv2.imshow('dilatation', dilatation)
     cv2.imshow("canny", canny)
-    cv2.imshow("bit wise", res)
+    cv2.imshow("bit wise", res) 
+    '''
     # find contours in the thresholded image and initialize the
     # shape detector
     cnts = cv2.findContours(canny, cv2.RETR_EXTERNAL,
@@ -102,13 +110,17 @@ while True:
             c = c.astype("float")
             c *= ratio
             c = c.astype("int")
+            for client in clients:
+                msg = json.dumps({'x': cX, 'y': cY})
+                client.sendMessage(unicode(msg))
+
             cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
             cv2.putText(image, shape, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX,
                         0.5, (255, 255, 255), 2)
 
         # show the output image
         cv2.imshow("Image", image)
-    #questo non credo funzioni
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

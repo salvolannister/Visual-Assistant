@@ -1,4 +1,7 @@
 var model, modelRotY=0, tmpMesh;
+var history = [];
+var ws = new WebSocket('ws://localhost:9000');
+
 var mouse = {};
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -8,6 +11,7 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.gammaOutput = true;
 renderer.gammaFactor = 2.2;
 document.body.appendChild( renderer.domElement );
+
 
 
 camera.position.set(0, 0, 3);
@@ -104,4 +108,18 @@ function animate() {
 }
 animate();
 
+document.addEventListener('DOMContentLoaded', function(event) {
  document.addEventListener('mousemove', onDocumentMouseMove, false);
+
+});
+
+ ws.onopen = function() {
+    console.log("connected")
+ };
+
+ ws.onmessage = function (event) {
+     var m = JSON.parse(event.data);
+     history.push({ x: m.x * 2 - 1, y: -m.y * 2 + 1});
+     window.alert("X: "+x + " Y "+ y)
+     // ... rest of the function.
+ };
