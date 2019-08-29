@@ -10,7 +10,7 @@ from SimpleWebSocketServer import  SimpleWebSocketServer,WebSocket
 # load the image and resize it to a smaller factor so that
 # the shapes can be approximated better
 
-capture = cv2.VideoCapture(0)
+
 clients = []
 server = None
 
@@ -26,13 +26,15 @@ class SimpleWSServer(WebSocket):
 def run_server():
     global server
     server = SimpleWebSocketServer('', 9000, SimpleWSServer,
-                                   selectInterval=(1000.0 / 15) / 1000)
+                                   selectInterval=(1000.0 / 30) / 1000)
     server.serveforever()
 
 
 t=threading.Thread(target=run_server)
 t.start()
 
+capture = cv2.VideoCapture(0)
+print(capture.get(cv2.CAP_PROP_FPS))
 kernel1 = np.ones((8, 8), np.uint8)
 kernel2 = np.ones((2, 2), np.uint8)
 
@@ -105,23 +107,26 @@ while True:
         shape = sd.detect(c)
         #print(shape)
         if shape == "rectangle":
+
             # multiply the contour (x, y)-coordinates by the resize ratio,
             # then draw the contours and the name of the shape on the image
             c = c.astype("float")
             c *= ratio
             c = c.astype("int")
             for client in clients:
+                print("sono qui ")
                 msg = json.dumps({'x': cX, 'y': cY})
-                client.sendMessage(unicode(msg))
+                client.sendMessage(str(msg))
+                print(str(msg) + " sent")
 
             cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
             cv2.putText(image, shape, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX,
                         0.5, (255, 255, 255), 2)
 
         # show the output image
-        cv2.imshow("Image", image)
+        #cv2.imshow("Image", image)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-
+server.close()
