@@ -62,7 +62,7 @@ function postFile(file) {
         // so now we have to send domething
             let objects = JSON.parse(this.response);
             //console.log(objects);
-             console.log(String(objects));
+             console.log("X " +objects.x+ "Y " +objects.y);
             //draw the boxes
             //drawBoxes(objects);
 

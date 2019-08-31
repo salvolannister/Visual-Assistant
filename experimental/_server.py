@@ -2,9 +2,12 @@
 # il codice per gestire gli input dev'essere qui
 from flask import Flask, request, Response
 import cv2 as cv
-import oda as od
+import object_detection_api as ada
 import json
+from PIL import Image
+import numpy as np
 app = Flask(__name__)
+
 
 
 @app.route('/')
@@ -23,9 +26,12 @@ def image():
         #image = cv.imread(image_file);
         #cv.imshow("img",image);
         #cv.imwrite("result.jpg", image);
-        print("sono qui");
+        pil_image = Image.open(image_file)
+        opencvImage = cv.cvtColor(np.array(pil_image), cv.COLOR_RGB2BGR)
+        cv.imwrite("img.jpg", opencvImage);
+
         # return image_file;
-        return json.dumps("worked");
+        return ada.getObjects(opencvImage)
     except Exception as e:
 
         print('POST /image error: ' + str(e))

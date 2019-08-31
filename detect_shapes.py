@@ -114,7 +114,7 @@ while True:
             c *= ratio
             c = c.astype("int")
             for client in clients:
-                print("sono qui ")
+
                 msg = json.dumps({'x': cX, 'y': cY})
                 client.sendMessage(str(msg))
                 print(str(msg) + " sent")
