@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return 'Tesina Computer Vision'
+    return 'go to /local to start'
 
 
 @app.route('/image', methods=['POST', 'GET'])
@@ -28,8 +28,6 @@ def image():
         #cv.imwrite("result.jpg", image);
         pil_image = Image.open(image_file)
         opencvImage = cv.cvtColor(np.array(pil_image), cv.COLOR_RGB2BGR)
-        cv.imwrite("img.jpg", opencvImage);
-
         # return image_file;
         return ada.getObjects(opencvImage)
     except Exception as e:

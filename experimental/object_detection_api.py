@@ -5,12 +5,14 @@ import numpy as np
 # added to put object in JSON
 from shapedetector import ShapeDetector
 
+
 class Object(object):
     def __init__(self):
         self.name = "webrtcHacks TensorFlow Object Detection REST API"
 
     def toJSON(self):
         return json.dumps(self.__dict__)
+
 
 def getObjects(image):
     lower_red = np.array([170, 70, 50])
@@ -63,7 +65,6 @@ def getObjects(image):
         shape = sd.detect(c)
         # print(shape)
         if shape == "rectangle":
-
             # multiply the contour (x, y)-coordinates by the resize ratio,
             # then draw the contours and the name of the shape on the image
             c = c.astype("float")
@@ -74,8 +75,6 @@ def getObjects(image):
             print(str(msg) + " sent")
             return msg;
 
-
-
-        # show the output image
-     # cv2.imshow("Image", image)
-    return json.dumps("none")
+    # show the output image
+    # cv2.imshow("Image", image)
+    return json.dumps("Nothing found")
