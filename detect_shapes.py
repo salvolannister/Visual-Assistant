@@ -79,13 +79,13 @@ while True:
    # res = cv2.bitwise_and(dilatation, resized, mask=mask_red)
     #thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1]
     canny = cv2.Canny(dilatation , 80, 180, 3)
-    '''
+
     cv2.imshow('red mask', mask_red)
     cv2.imshow('erosion', erosion)
     cv2.imshow('dilatation', dilatation)
     cv2.imshow("canny", canny)
     cv2.imshow("bit wise", res) 
-    '''
+
     # find contours in the thresholded image and initialize the
     # shape detector
     cnts = cv2.findContours(canny, cv2.RETR_EXTERNAL,
@@ -124,7 +124,7 @@ while True:
                         0.5, (255, 255, 255), 2)
 
         # show the output image
-        #cv2.imshow("Image", image)
+        cv2.imshow("Image", image)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

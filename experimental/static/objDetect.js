@@ -6,7 +6,7 @@ const mirror = s.getAttribute("data-mirror") || false; //mirror the boundary box
 const apiServer = s.getAttribute("data-apiServer") || window.location.origin + '/image';
 // variables to upload the model
 var model, modelRotY=0, tmpMesh;
-var scene, camera, renderer, light;
+var scene, camera, renderer, light,X=0,Y=0;
 //Video element selector
 v = document.getElementById(sourceVideo);
 
@@ -44,8 +44,8 @@ function startObjectDetection() {
     drawCtx.fillStyle = "cyan";
 
     //Save and send the first image
-imageCtx.drawImage(v, 0, 0, v.videoWidth, v.videoHeight, 0, 0, uploadWidth, uploadWidth * (v.videoHeight / v.videoWidth));
-imageCanvas.toBlob(postFile, 'image/jpeg');
+    imageCtx.drawImage(v, 0, 0, v.videoWidth, v.videoHeight, 0, 0, uploadWidth, uploadWidth * (v.videoHeight / v.videoWidth));
+    imageCanvas.toBlob(postFile, 'image/jpeg');
 
 }
 
@@ -69,9 +69,12 @@ function postFile(file) {
             }else{
              console.log("X " +objects.x+ " Y " +objects.y);
             //draw the boxes
+            X = objects.x;
+            Y = objects.y;
             drawVase(objects);
             }
             //Send the next image
+            imageCtx.drawImage(v, 0, 0, v.videoWidth, v.videoHeight, 0, 0, uploadWidth, uploadWidth * (v.videoHeight / v.videoWidth));
             imageCanvas.toBlob(postFile, 'image/jpeg');
             console.log("onload function end");
         }
@@ -88,9 +91,11 @@ function drawVase(objects){
     initLight();
     initPlane();
     initVase();
-    animate();
+    requestAnimationFrame(render);
+
 }
 
+// update position of objects on the scene
 function update() {
         /* bisogna aspettare che
         il modello sia caricato */
@@ -98,19 +103,19 @@ function update() {
 
           modelRotY += 0.01;
           model.rotation.y = modelRotY;
-          model.position.x = 0.5 ;
+          model.position.x = X ;
+          model.position.y = Y;
         }
 
       }
 
-function animate() {
+function render() {
   update();
   //projection();
   renderer.setClearColor(0x000000, 0);
   renderer.render( scene, camera );
-	requestAnimationFrame( animate );
-
-
+  //schedule another frame
+  requestAnimationFrame( render );
 }
 
 function init(width, height){
