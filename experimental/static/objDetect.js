@@ -7,6 +7,7 @@ const apiServer = s.getAttribute("data-apiServer") || window.location.origin + '
 // variables to upload the model
 var model, modelRotY=0, tmpMesh;
 var scene, camera, renderer, light,X=0,Y=0;
+var positionHistory = [];
 //Video element selector
 v = document.getElementById(sourceVideo);
 
@@ -46,7 +47,15 @@ function startObjectDetection() {
     //Save and send the first image
     imageCtx.drawImage(v, 0, 0, v.videoWidth, v.videoHeight, 0, 0, uploadWidth, uploadWidth * (v.videoHeight / v.videoWidth));
     imageCanvas.toBlob(postFile, 'image/jpeg');
+    initScene();
+}
 
+function initScene() {
+    init(v.videoWidth,v.videoHeight);
+    initLight();
+    initPlane();
+    initVase();
+    render();
 }
 
 function postFile(file) {
@@ -69,8 +78,14 @@ function postFile(file) {
             }else{
              console.log("X " +objects.x+ " Y " +objects.y);
             //draw the boxes
-            X = objects.x;
-            Y = objects.y;
+            positionHistory.push({
+            x:  objects.x * 2 - 1,
+            y: - objects.y * 2 + 1,}) 
+
+            X = objects.x*2 -1;
+            // y positive sono in senso opposto
+            Y = -objects.y*2 +1;
+            console.log("X " +X+ " Y " +Y);
             drawVase(objects);
             }
             //Send the next image
@@ -87,12 +102,31 @@ function postFile(file) {
 }
 
 function drawVase(objects){
-    init(v.videoWidth,v.videoHeight);
-    initLight();
-    initPlane();
-    initVase();
-    requestAnimationFrame(render);
 
+
+
+}
+
+function projection(){
+
+  var vector = new THREE.Vector3(X, Y, 0.5);
+    // Unproject camera distortion (fov, aspect ratio)
+    vector.unproject(camera);
+    var norm = vector.sub(camera.position).normalize();
+    // Cast a line from our camera to the tmpMesh and see where these
+    // two intersect. That's our 2D position in 3D coordinates.
+    var ray = new THREE.Raycaster(camera.position, norm);
+
+  if(tmpMesh)  var intersects = ray.intersectObject(tmpMesh);
+  if(model) {
+      //window.alert(mouse.x);
+      if(intersects.length === 1){
+      var point = intersects[0].point;
+          model.position.x = point.x;
+          model.position.y = point.y;
+      }else{
+          console.log("No intersection found")}
+    }
 }
 
 // update position of objects on the scene
@@ -100,18 +134,16 @@ function update() {
         /* bisogna aspettare che
         il modello sia caricato */
         if (model) {
-
+        console.log(" sono nel update")
           modelRotY += 0.01;
           model.rotation.y = modelRotY;
-          model.position.x = X ;
-          model.position.y = Y;
-        }
+         }
 
       }
 
 function render() {
   update();
-  //projection();
+  projection();
   renderer.setClearColor(0x000000, 0);
   renderer.render( scene, camera );
   //schedule another frame
@@ -119,12 +151,12 @@ function render() {
 }
 
 function init(width, height){
-  var aspect = window.innerWidth/window.innerHeight;
-   scene = new THREE.Scene();
- camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000 );
+  var aspect = width/height;
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000 );
   camera.position.set(0, 0, 3);
-   renderer = new THREE.WebGLRenderer({antialias: true, alpha : true});
-  renderer.setSize( window.innerWidth, window.innerHeight);
+  renderer = new THREE.WebGLRenderer({antialias: true, alpha : true});
+  renderer.setSize( width, height);
   //renderer.setPixelRatio( window.devicePixelRatio );
   renderer.gammaOutput = true;
   renderer.gammaFactor = 2.2;
@@ -139,6 +171,7 @@ function initPlane() {
 }
 
 function initVase(){
+
     var loader = new THREE.GLTFLoader();
     loader.load(
        "./static/vaso.glb",
@@ -155,6 +188,7 @@ function initVase(){
 
        },
     );
+
   }
 
   function initLight() {

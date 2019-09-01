@@ -3,7 +3,6 @@
 from flask import Flask, request, Response
 import cv2 as cv
 import object_detection_api as ada
-import json
 from PIL import Image
 import numpy as np
 app = Flask(__name__)

@@ -15,18 +15,23 @@ class Object(object):
 
 
 def getObjects(image):
+    w = 640
+    img_height, img_width, depth = image.shape
+    print(str(img_height) + " " + str(img_width) + " " + str(depth))
+    scale = w / img_width
+    h = scale * img_height
     lower_red = np.array([170, 70, 50])
     upper_red = np.array([180, 255, 255])
     lower_red1 = np.array([0, 50, 50])
     upper_red1 = np.array([10, 255, 255])
     kernel1 = np.ones((8, 8), np.uint8)
     kernel2 = np.ones((2, 2), np.uint8)
-    resized = imutils.resize(image, width=300)
+    resized =cv2.resize(image, (0,0), fx=scale, fy= scale)
     ratio = image.shape[0] / float(resized.shape[0])
 
     # convert the resized image to grayscale, blur it slightly,
     # and threshold it
-    r_hls_img = cv2.cvtColor(resized, cv2.COLOR_BGR2HLS)
+    r_hls_img = cv2.cvtColor(resized, cv2.COLOR_BGR2HLS);
     # blurred = cv2.GaussianBlur(resized, (3, 3), 0)
     mask_0 = cv2.inRange(r_hls_img, lower_red, upper_red)
     mask_1 = cv2.inRange(r_hls_img, lower_red1, upper_red1)
@@ -59,8 +64,8 @@ def getObjects(image):
         M = cv2.moments(c)
         if M["m00"] == 0:
             M["m00"] = 1
-        cX = int((M["m10"] / M["m00"]) * ratio)
-        cY = int((M["m01"] / M["m00"]) * ratio)
+        cX = int((M["m10"] / M["m00"]) )
+        cY = int((M["m01"] / M["m00"]) )
 
         shape = sd.detect(c)
         # print(shape)
@@ -70,8 +75,10 @@ def getObjects(image):
             c = c.astype("float")
             c *= ratio
             c = c.astype("int")
-
-            msg = json.dumps({'x': cX, 'y': cY})
+            #cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+            X = cX/w
+            Y = cY/h
+            msg = json.dumps({'x': X, 'y': Y})
             print(str(msg) + " sent")
             return msg;
 
