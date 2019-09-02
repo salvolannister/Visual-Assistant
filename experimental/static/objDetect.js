@@ -8,6 +8,9 @@ const apiServer = s.getAttribute("data-apiServer") || window.location.origin + '
 var model, modelRotY=0, tmpMesh;
 var scene, camera, renderer, light,X=0,Y=0;
 var positionHistory = [];
+var vaseRotY = 0;
+var lastPos = [], diffMove = [];
+var ping = 0;
 //Video element selector
 v = document.getElementById(sourceVideo);
 
@@ -51,7 +54,7 @@ function startObjectDetection() {
 }
 
 function initScene() {
-    init(v.videoWidth,v.videoHeight);
+    init(window.innerWidth, window.innerHeight);
     initLight();
     initPlane();
     initVase();
@@ -78,14 +81,7 @@ function postFile(file) {
             }else{
              console.log("X " +objects.x+ " Y " +objects.y);
             //draw the boxes
-            positionHistory.push({
-            x:  objects.x * 2 - 1,
-            y: - objects.y * 2 + 1,}) 
 
-            X = objects.x*2 -1;
-            // y positive sono in senso opposto
-            Y = -objects.y*2 +1;
-            console.log("X " +X+ " Y " +Y);
             drawVase(objects);
             }
             //Send the next image
@@ -103,10 +99,55 @@ function postFile(file) {
 
 function drawVase(objects){
 
+    positionHistory.push({
+            x:  objects.x * 2 - 1,
+            y: - objects.y * 2 + 1,
+            });
+
+            if (positionHistory.length > 10) {
+            // remove the first element
+                positionHistory.shift();
+            }
+            var xCoords = [], yCoords = [], radiuses = [];
+            for (var i = math.max(positionHistory.length - 2, 0); i < positionHistory.length; i++) {
+                xCoords.push(positionHistory[i].x);
+                yCoords.push(positionHistory[i].y);
+            }
+            var posX = math.mean(xCoords);
+            var posY = math.mean(yCoords);
+
+
+            var targetPos = [posX, posY];
+            if (!lastPos) {
+                lastPos = targetPos;
+            }
+            diffMove = [(targetPos[0] - lastPos[0]) / 4, (targetPos[1] - lastPos[1]) / 4]
+
+            ping = 0;
+
+            X = objects.x*2 -1;
+            // y positive sono in senso opposto
+            Y = -objects.y*2 +1;
+            console.log("X " +X+ " Y " +Y);
 
 
 }
 
+function checkIntersect(vector){
+    // Unproject camera distortion (fov, aspect ratio)
+    vector.unproject(camera);
+    var norm = vector.sub(camera.position).normalize();
+    var ray = new THREE.Raycaster(camera.position, norm);
+    // Cast a line from our camera to the tmpMesh and see where these
+    // two intersect. That's our 2D position in 3D coordinates.
+   if(tmpMesh) {var intersects = ray.intersectObject(tmpMesh);
+    return intersects;
+    }else{
+    return null;
+    }
+    }
+
+/*
 function projection(){
 
   var vector = new THREE.Vector3(X, Y, 0.5);
@@ -128,22 +169,50 @@ function projection(){
           console.log("No intersection found")}
     }
 }
-
+*/
 // update position of objects on the scene
 function update() {
         /* bisogna aspettare che
         il modello sia caricato */
         if (model) {
-        console.log(" sono nel update")
-          modelRotY += 0.01;
-          model.rotation.y = modelRotY;
-         }
+            if (positionHistory.length === 0) {
+            return;
+            }
 
-      }
+        vaseRotY += 0.007;
+
+        /*quando ping diventa zero?? */
+        ping++;
+        if (ping < 10) {
+            lastPos[0] += diffMove[0];
+            lastPos[1] += diffMove[1];
+            lastPos[2] += diffMove[2];
+        }
+
+        var vector = new THREE.Vector3(lastPos[0], lastPos[1], 0.5);
+        var intersect = checkIntersect(vector);
+        if (intersect != null){
+        model.rotation.y = vaseRotY;
+        var n = intersect.length;
+        console.log("intersect length is "+n)
+        // With position from OpenCV I could possibly move the Earth outside of the window
+        if (intersect.length != 0) {
+
+            var point = intersect[0].point;
+            model.position.x = point.x;
+            model.position.y = point.y;
+             console.log("i go here in the update and intersect "+" x:"+point.x+ " y:"+point.y);
+        }
+
+
+             }
+        }
+        }
+
 
 function render() {
   update();
-  projection();
+  //projection();
   renderer.setClearColor(0x000000, 0);
   renderer.render( scene, camera );
   //schedule another frame

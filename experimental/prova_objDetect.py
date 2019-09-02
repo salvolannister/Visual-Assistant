@@ -5,7 +5,7 @@ import numpy as np
 # added to put object in JSON
 from shapedetector import ShapeDetector
 
-image = cv2.imread("result.jpg")
+image = cv2.imread("prova.jpg")
 w = 640
 img_height, img_width, depth = image.shape
 print(str(img_height) + " " + str(img_width) + " " + str(depth))
