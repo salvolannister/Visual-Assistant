@@ -44,41 +44,33 @@ while True:
 
 
 
-    # Apply filters
-    hls_img = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
-    grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    blured = cv2.medianBlur(hls_img, 15)
+    # Set the thresholds for the colors
     lower_red = np.array([170, 70, 50])
-    upper_red = np.array( [180, 255, 255])
-    mask_0 = cv2.inRange(hls_img, lower_red, upper_red)
+    upper_red = np.array([180, 255, 255])
+    #lower_red1 = np.array([0, 50, 50])
+    #upper_red1 = np.array([10, 255, 255])
 
-    lower_red1 = np.array([0, 50, 50])
-    upper_red1 = np.array([10, 255, 255])
-    mask_1 = cv2.inRange(hls_img, lower_red1, upper_red1)
-    mask_red = mask_0 + mask_1
-    res = cv2.bitwise_and(image, image, mask=mask_red)
-
-    '''  
-    cv2.imshow('Image previews', image)
-    cv2.imshow('bit_wise', res)
-    '''
+    #resize the image
     resized = imutils.resize(image, width=300)
     ratio = image.shape[0] / float(resized.shape[0])
 
 
-    # convert the resized image to grayscale, blur it slightly,
-    # and threshold it
+    # convert the resized image to HLSscale, apply mask, erosion
+    #  dilatation and kenny
     r_hls_img = cv2.cvtColor(resized, cv2.COLOR_BGR2HLS)
     #blurred = cv2.GaussianBlur(resized, (3, 3), 0)
     mask_0 = cv2.inRange(r_hls_img, lower_red, upper_red)
-    mask_1 = cv2.inRange(r_hls_img, lower_red1, upper_red1)
-    mask_red = mask_0 + mask_1
+    #mask_1 = cv2.inRange(r_hls_img, lower_red1, upper_red1)
+
+    cv2.imshow("mask_0", mask_0)
+    #cv2.imshow("mask_1", mask_1)
+    mask_red = mask_0
 
     erosion = cv2.erode(mask_red, kernel2, iterations=1)
-    dilatation =  cv2.dilate(erosion, kernel1,iterations = 1)
-   # res = cv2.bitwise_and(dilatation, resized, mask=mask_red)
+    dilatation = cv2.dilate(erosion, kernel1, iterations=1)
+    res = cv2.bitwise_and(resized, resized, mask=mask_red)
     #thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1]
-    canny = cv2.Canny(dilatation , 80, 180, 3)
+    canny = cv2.Canny(dilatation, 80, 180, 3)
 
     cv2.imshow('red mask', mask_red)
     cv2.imshow('erosion', erosion)

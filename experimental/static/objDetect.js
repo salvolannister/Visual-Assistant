@@ -11,6 +11,7 @@ var positionHistory = [];
 var vaseRotY = 0;
 var lastPos = [], diffMove = [];
 var ping = 0;
+var go = 0;
 //Video element selector
 v = document.getElementById(sourceVideo);
 
@@ -54,7 +55,7 @@ function startObjectDetection() {
 }
 
 function initScene() {
-    init(window.innerWidth, window.innerHeight);
+    init(v.videoWidth, v.videoHeight);
     initLight();
     initPlane();
     initVase();
@@ -99,38 +100,10 @@ function postFile(file) {
 
 function drawVase(objects){
 
-    positionHistory.push({
-            x:  objects.x * 2 - 1,
-            y: - objects.y * 2 + 1,
-            });
-
-            if (positionHistory.length > 10) {
-            // remove the first element
-                positionHistory.shift();
-            }
-            var xCoords = [], yCoords = [], radiuses = [];
-            for (var i = math.max(positionHistory.length - 2, 0); i < positionHistory.length; i++) {
-                xCoords.push(positionHistory[i].x);
-                yCoords.push(positionHistory[i].y);
-            }
-            var posX = math.mean(xCoords);
-            var posY = math.mean(yCoords);
-
-
-            var targetPos = [posX, posY];
-            if (!lastPos) {
-                lastPos = targetPos;
-            }
-            diffMove = [(targetPos[0] - lastPos[0]) / 4, (targetPos[1] - lastPos[1]) / 4]
-
-            ping = 0;
-
-            X = objects.x*2 -1;
-            // y positive sono in senso opposto
-            Y = -objects.y*2 +1;
-            console.log("X " +X+ " Y " +Y);
-
-
+            X = -( objects.x/v.videoWidth * 2 - 1);
+            Y = - objects.y/v.videoHeight * 2 + 1;
+            console.log("X modified " +X+ " Y modified " +Y);
+            go = 1;
 }
 
 function checkIntersect(vector){
@@ -174,39 +147,31 @@ function projection(){
 function update() {
         /* bisogna aspettare che
         il modello sia caricato */
-        if (model) {
-            if (positionHistory.length === 0) {
-            return;
-            }
+        if (model  && go) {
 
         vaseRotY += 0.007;
 
-        /*quando ping diventa zero?? */
-        ping++;
-        if (ping < 10) {
-            lastPos[0] += diffMove[0];
-            lastPos[1] += diffMove[1];
-            lastPos[2] += diffMove[2];
-        }
 
-        var vector = new THREE.Vector3(lastPos[0], lastPos[1], 0.5);
+
+
+        var vector = new THREE.Vector3(X, Y, 0.5);
         var intersect = checkIntersect(vector);
-        if (intersect != null){
+
         model.rotation.y = vaseRotY;
         var n = intersect.length;
-        console.log("intersect length is "+n)
+        //console.log("intersect length is "+n)
         // With position from OpenCV I could possibly move the Earth outside of the window
         if (intersect.length != 0) {
 
             var point = intersect[0].point;
             model.position.x = point.x;
             model.position.y = point.y;
-             console.log("i go here in the update and intersect "+" x:"+point.x+ " y:"+point.y);
+            console.log("i go here in the update and intersect "+" x:"+point.x+ " y:"+point.y);
         }
 
-
+        go = 0;
              }
-        }
+
         }
 
 

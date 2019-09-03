@@ -27,7 +27,7 @@ def image():
 
         pil_image = Image.open(image_file)
         opencvImage = cv.cvtColor(np.array(pil_image), cv.COLOR_RGB2BGR)
-        cv.imwrite("result.jpg", opencvImage);
+        #cv.imwrite("result.jpg", opencvImage);
         # return image_file;
         return ada.getObjects(opencvImage)
     except Exception as e:

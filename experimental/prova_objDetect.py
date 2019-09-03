@@ -6,40 +6,41 @@ import numpy as np
 from shapedetector import ShapeDetector
 
 image = cv2.imread("prova.jpg")
-w = 640
+#w = 640
 img_height, img_width, depth = image.shape
 print(str(img_height) + " " + str(img_width) + " " + str(depth))
+"""
 scale = w / img_width
 h = scale * img_height
+"""
 lower_red = np.array([170, 70, 50])
 upper_red = np.array([180, 255, 255])
-lower_red1 = np.array([0, 50, 50])
-upper_red1 = np.array([10, 255, 255])
+
 kernel1 = np.ones((8, 8), np.uint8)
 kernel2 = np.ones((2, 2), np.uint8)
-resized = cv2.resize(image, (0, 0), fx=scale, fy=scale)
+resized = imutils.resize(image, width=300)
 ratio = image.shape[0] / float(resized.shape[0])
 
 # convert the resized image to grayscale, blur it slightly,
 # and threshold it
 r_hls_img = cv2.cvtColor(resized, cv2.COLOR_BGR2HLS);
-# blurred = cv2.GaussianBlur(resized, (3, 3), 0)
+
 mask_0 = cv2.inRange(r_hls_img, lower_red, upper_red)
-mask_1 = cv2.inRange(r_hls_img, lower_red1, upper_red1)
-mask_red = mask_0 + mask_1
+
+mask_red = mask_0
 
 erosion = cv2.erode(mask_red, kernel2, iterations=1)
 dilatation = cv2.dilate(erosion, kernel1, iterations=1)
-# res = cv2.bitwise_and(dilatation, resized, mask=mask_red)
+res = cv2.bitwise_and(resized, resized, mask=mask_red)
 # thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1]
 canny = cv2.Canny(dilatation, 80, 180, 3)
-'''
+
 cv2.imshow('red mask', mask_red)
 cv2.imshow('erosion', erosion)
 cv2.imshow('dilatation', dilatation)
 cv2.imshow("canny", canny)
-cv2.imshow("bit wise", res) 
-'''
+cv2.imshow("bit wise", res)
+
 # find contours in the thresholded image and initialize the
 # shape detector
 cnts = cv2.findContours(canny, cv2.RETR_EXTERNAL,
@@ -55,8 +56,8 @@ for c in cnts:
     M = cv2.moments(c)
     if M["m00"] == 0:
         M["m00"] = 1
-    cX = int((M["m10"] / M["m00"]))
-    cY = int((M["m01"] / M["m00"]))
+    cX = int((M["m10"] / M["m00"])* ratio)
+    cY = int((M["m01"] / M["m00"])* ratio)
 
     shape = sd.detect(c)
     # print(shape)
@@ -66,8 +67,13 @@ for c in cnts:
         c = c.astype("float")
         c *= ratio
         c = c.astype("int")
-        # cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
-        X = int(cX / w)
-        Y = int(cY / h)
+        cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+        X = cX
+        Y = cY
         msg = json.dumps({'x': X, 'y': Y})
         print(str(msg) + " sent")
+        cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+        cv2.putText(image, shape, (X, Y), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5, (255, 255, 255), 2)
+cv2.imshow("Image", image)
+cv2.waitKey()
