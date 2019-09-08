@@ -14,7 +14,7 @@ class Object(object):
         return json.dumps(self.__dict__)
 
 
-def getObjects(image):
+def getObjects(image, choise):
     w = 640
     img_height, img_width, depth = image.shape
     #print(str(img_height) + " " + str(img_width) + " " + str(depth))
@@ -73,7 +73,7 @@ def getObjects(image):
             #cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
             X = cX
             Y = cY
-            msg = json.dumps({'x': X, 'y': Y})
+            msg = json.dumps({'x': X, 'y': Y,'n': choise})
             print(str(msg) + " sent")
             return msg;
 

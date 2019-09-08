@@ -2,12 +2,16 @@
 # il codice per gestire gli input dev'essere qui
 from flask import Flask, request, Response
 import cv2 as cv
-import object_detection_api as ada
+import object_detection_api as oda
 from PIL import Image
 import numpy as np
 app = Flask(__name__)
 
+# 0 doraemon
+# 1 painting
+# 2 vase
 
+choise = 0;
 
 @app.route('/')
 def index():
@@ -29,7 +33,7 @@ def image():
         opencvImage = cv.cvtColor(np.array(pil_image), cv.COLOR_RGB2BGR)
         #cv.imwrite("result.jpg", opencvImage);
         # return image_file;
-        return ada.getObjects(opencvImage)
+        return oda.getObjects(opencvImage, choise)
     except Exception as e:
 
         print('POST /image error: ' + str(e))
@@ -54,4 +58,11 @@ def after_request(response):
     return response
 
 if __name__ == '__main__':
+    print('How can i help you \n'
+          '#0: to show my identity \n'
+          '#1: to show a paint on the wall \n'
+          '#2 to show a vase on your table\n'
+          'input: ')
+    choise = input();
+    print('Remember to hold your red target, here we go ! Good choise \n ')
     app.run();

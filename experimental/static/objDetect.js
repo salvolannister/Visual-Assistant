@@ -8,10 +8,12 @@ const apiServer = s.getAttribute("data-apiServer") || window.location.origin + '
 var model, modelRotY=0, tmpMesh;
 var scene, camera, renderer, light,X=0,Y=0;
 var positionHistory = [];
-var vaseRotY = 0;
+var vaseRotY = 0, paintRotY = 89.5;
 var lastPos = [], diffMove = [];
 var ping = 0;
-var go = 0;
+var go = 0, first = 1;
+
+
 //Video element selector
 v = document.getElementById(sourceVideo);
 
@@ -54,16 +56,28 @@ function startObjectDetection() {
     initScene();
 }
 
-function initScene() {
+function initScene(choise) {
     init(v.videoWidth, v.videoHeight);
     initLight();
     initPlane();
-    initVase();
+    switch(choise){
+                    case 0:
+                    initIdentity();
+                    break;
+                    case 1:
+                    initVase();
+                    break;
+                    case 2:
+                    initPainting();
+                    break;
+                    default:
+                    console.log("We don't have this choise "+choise);
+                }
     render();
 }
 
 function postFile(file) {
-      // perché la mando due volte l'immagine??
+     // perché la mando due volte l'immagine??
     //Set options as form data
     let formdata = new FormData();
     formdata.append("image", file);
@@ -83,6 +97,10 @@ function postFile(file) {
              console.log("X " +objects.x+ " Y " +objects.y);
             //draw the boxes
 
+            if(first){
+            initScene(objects.n);
+            first = 0;
+            }
             drawVase(objects);
             }
             //Send the next image
@@ -149,15 +167,12 @@ function update() {
         il modello sia caricato */
         if (model  && go) {
 
-        vaseRotY += 0.007;
-
-
-
-
+         if(choise === 2) vaseRotY += 0.007;
+        // vaseRotY = -89.5;
         var vector = new THREE.Vector3(X, Y, 0.5);
         var intersect = checkIntersect(vector);
 
-        model.rotation.y = vaseRotY;
+         if (choise == 2) model.rotation.y = vaseRotY;
         var n = intersect.length;
         //console.log("intersect length is "+n)
         // With position from OpenCV I could possibly move the Earth outside of the window
@@ -208,7 +223,49 @@ function initVase(){
 
     var loader = new THREE.GLTFLoader();
     loader.load(
-       "./static/vaso.glb",
+       "./static/models/vaso.glb",
+       function ( gltf ) {
+        model = gltf.scene
+
+        scene.add(model);
+        //model.rotation.y = 4.5
+        gltf.animations; // Array<THREE.AnimationClip>
+    		gltf.scene; // THREE.Scene
+    		gltf.scenes; // Array<THREE.Scene>
+    		gltf.cameras; // Array<THREE.Camera>
+    		gltf.asset; // Object
+
+       },
+    );
+
+  }
+
+function initPainting(){
+
+    var loader = new THREE.GLTFLoader();
+    loader.load(
+       "./static/models/oilpainting.glb",
+       function ( gltf ) {
+        model = gltf.scene
+
+        scene.add(model);
+        //model.rotation.y = 4.5
+        gltf.animations; // Array<THREE.AnimationClip>
+    		gltf.scene; // THREE.Scene
+    		gltf.scenes; // Array<THREE.Scene>
+    		gltf.cameras; // Array<THREE.Camera>
+    		gltf.asset; // Object
+
+       },
+    );
+
+  }
+
+function initIdentity(){
+
+    var loader = new THREE.GLTFLoader();
+    loader.load(
+       "./static/models/doraemon.glb",
        function ( gltf ) {
         model = gltf.scene
 
