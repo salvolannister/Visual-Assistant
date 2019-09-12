@@ -12,7 +12,7 @@ var vaseRotY = 0, paintRotY = 89.5;
 var lastPos = [], diffMove = [];
 var ping = 0;
 var go = 0, first = 1;
-
+var choise = -1;
 
 //Video element selector
 v = document.getElementById(sourceVideo);
@@ -56,19 +56,20 @@ function startObjectDetection() {
     initScene();
 }
 
-function initScene(choise) {
+function initScene() {
     init(v.videoWidth, v.videoHeight);
     initLight();
     initPlane();
     switch(choise){
-                    case 0:
+                    case '0':
                     initIdentity();
                     break;
-                    case 1:
-                    initVase();
-                    break;
-                    case 2:
+                    case '1':
                     initPainting();
+
+                    break;
+                    case '2':
+                    initVase();
                     break;
                     default:
                     console.log("We don't have this choise "+choise);
@@ -98,7 +99,8 @@ function postFile(file) {
             //draw the boxes
 
             if(first){
-            initScene(objects.n);
+            choise =objects.n;
+            initScene();
             first = 0;
             }
             drawVase(objects);
@@ -138,41 +140,19 @@ function checkIntersect(vector){
     }
     }
 
-/*
-function projection(){
 
-  var vector = new THREE.Vector3(X, Y, 0.5);
-    // Unproject camera distortion (fov, aspect ratio)
-    vector.unproject(camera);
-    var norm = vector.sub(camera.position).normalize();
-    // Cast a line from our camera to the tmpMesh and see where these
-    // two intersect. That's our 2D position in 3D coordinates.
-    var ray = new THREE.Raycaster(camera.position, norm);
-
-  if(tmpMesh)  var intersects = ray.intersectObject(tmpMesh);
-  if(model) {
-      //window.alert(mouse.x);
-      if(intersects.length === 1){
-      var point = intersects[0].point;
-          model.position.x = point.x;
-          model.position.y = point.y;
-      }else{
-          console.log("No intersection found")}
-    }
-}
-*/
 // update position of objects on the scene
 function update() {
         /* bisogna aspettare che
         il modello sia caricato */
         if (model  && go) {
 
-         if(choise === 2) vaseRotY += 0.007;
+         if(choise === '2') vaseRotY += 0.007;
         // vaseRotY = -89.5;
         var vector = new THREE.Vector3(X, Y, 0.5);
         var intersect = checkIntersect(vector);
 
-         if (choise == 2) model.rotation.y = vaseRotY;
+         if (choise == '2') model.rotation.y = vaseRotY;
         var n = intersect.length;
         //console.log("intersect length is "+n)
         // With position from OpenCV I could possibly move the Earth outside of the window
