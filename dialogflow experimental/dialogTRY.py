@@ -3,15 +3,17 @@ import json
 from google.api_core.exceptions import InvalidArgument
 from google.oauth2 import service_account
 from recordAudio import record
+import random
+import string
 
 dialogflow_key = json.load(open(r'accountKey.json'))
 credentials = (service_account.Credentials.from_service_account_info(dialogflow_key))
-
+N=10
 
 
 DIALOGFLOW_LANGUAGE_CODE = 'en-US'
 DIALOGFLOW_PROJECT_ID = 'chatcv'
-SESSION_ID = '123789'
+SESSION_ID = ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
 TRY_PHRASE = 'PAINTING'
 
 def explicit():
