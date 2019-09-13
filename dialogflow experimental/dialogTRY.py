@@ -9,7 +9,7 @@ import string
 dialogflow_key = json.load(open(r'accountKey.json'))
 credentials = (service_account.Credentials.from_service_account_info(dialogflow_key))
 N=10
-
+filename = "book_a_room.wav"
 
 DIALOGFLOW_LANGUAGE_CODE = 'en-US'
 DIALOGFLOW_PROJECT_ID = 'chatcv'
@@ -35,7 +35,7 @@ def detect_intent_stream(project_id, session_id, audio_file_path,
     Using the same `session_id` between requests allows continuation
     of the conversaion."""
 
-    session_client = dialogflow.SessionsClient()
+    session_client = dialogflow.SessionsClient(credentials=credentials)
 
     # Note: hard coding audio_encoding and sample_rate_hertz for simplicity.
     audio_encoding = dialogflow.enums.AudioEncoding.AUDIO_ENCODING_LINEAR_16
@@ -120,6 +120,7 @@ def detect_intent_texts(project_id, session_id, texts, language_code):
 
 if __name__ == "__main__":
     try:
-        detect_intent_texts(DIALOGFLOW_PROJECT_ID, SESSION_ID, TRY_PHRASE, DIALOGFLOW_LANGUAGE_CODE);
+        #detect_intent_texts(DIALOGFLOW_PROJECT_ID, SESSION_ID, TRY_PHRASE, DIALOGFLOW_LANGUAGE_CODE);
+        detect_intent_stream(DIALOGFLOW_PROJECT_ID, SESSION_ID, filename,DIALOGFLOW_LANGUAGE_CODE);
     except InvalidArgument:
         raise
