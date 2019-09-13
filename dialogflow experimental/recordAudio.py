@@ -1,13 +1,16 @@
 import pyaudio
 import wave
+import numpy as np
+from scipy.io import wavfile
+filename = "book_a_room.wav"
 
 def record():
     chunk = 1024  # Record in chunks of 1024 samples
     sample_format = pyaudio.paInt16  # 16 bits per sample
     channels = 2
-    fs = 44100  # Record at 44100 samples per second
-    seconds = 8
-    filename = "output.wav"
+    fs = 16000 # Record at 44100 samples per second
+    seconds = 5
+
 
     p = pyaudio.PyAudio()  # Create an interface to PortAudio
 
@@ -36,8 +39,42 @@ def record():
 
     # Save the recorded data as a WAV file
     wf = wave.open(filename, 'wb')
-    wf.setnchannels(channels)
+    wf.setnchannels(2)
     wf.setsampwidth(p.get_sample_size(sample_format))
     wf.setframerate(fs)
     wf.writeframes(b''.join(frames))
     wf.close()
+
+def stereoToMono(audiodata):
+    audiodata = audiodata.astype(float)
+    newaudiodata = []
+
+    d = audiodata.sum(axis=1) / 2
+    newaudiodata.append(d)
+
+    return np.array(newaudiodata, dtype='int16')
+
+if __name__ == "__main__":
+    #record()
+    # Open the sound file
+    chunk = 1024
+    output = wavfile.read(filename)
+
+    wf = wave.open(filename, 'rb')
+
+    # Create an interface to PortAudio
+    p = pyaudio.PyAudio()
+    stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                    channels=wf.getnchannels(),
+                    rate=wf.getframerate(),
+                    output=True)
+    # Read data in chunks
+    data = wf.readframes(chunk)
+
+    while data != '':
+        stream.write(data)
+        data = wf.readframes(chunk)
+
+    # Close and terminate the stream
+    stream.close()
+    p.terminate()
