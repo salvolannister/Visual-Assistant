@@ -3,6 +3,7 @@ import wave
 import numpy as np
 from scipy.io import wavfile
 filename = "book_a_room.wav"
+from pydub import AudioSegment
 
 def record():
     chunk = 1024  # Record in chunks of 1024 samples
@@ -44,24 +45,27 @@ def record():
     wf.setframerate(fs)
     wf.writeframes(b''.join(frames))
     wf.close()
+    sound = AudioSegment.from_wav(filename)
+    sound = sound.set_channels(1)
+    sound.export(filename, format="wav")
 
-def stereoToMono(audiodata):
-    audiodata = audiodata.astype(float)
-    newaudiodata = []
-
-    d = audiodata.sum(axis=1) / 2
-    newaudiodata.append(d)
-
-    return np.array(newaudiodata, dtype='int16')
-
+"""
+DEBUG CODE IN ORDER TO CHECK WHAT YOU RECORD
 if __name__ == "__main__":
-    #record()
+    
+    
+    
+    record()
+    # open the file and change it to mono
+    
+  
+    to hear what you recorded
     # Open the sound file
     chunk = 1024
     output = wavfile.read(filename)
 
     wf = wave.open(filename, 'rb')
-
+    
     # Create an interface to PortAudio
     p = pyaudio.PyAudio()
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
@@ -78,3 +82,5 @@ if __name__ == "__main__":
     # Close and terminate the stream
     stream.close()
     p.terminate()
+    
+"""

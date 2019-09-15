@@ -5,16 +5,27 @@ from google.oauth2 import service_account
 from recordAudio import record
 import random
 import string
+import pyttsx3
+import engineio
 
 dialogflow_key = json.load(open(r'accountKey.json'))
 credentials = (service_account.Credentials.from_service_account_info(dialogflow_key))
 N=10
-filename = "book_a_room.wav"
+filename = "nuovo_suono.wav"
 
 DIALOGFLOW_LANGUAGE_CODE = 'en-US'
 DIALOGFLOW_PROJECT_ID = 'chatcv'
 SESSION_ID = ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
 TRY_PHRASE = 'PAINTING'
+WELCOME_STRING = "Hi, How can I help you?"
+# parameters for voice
+engineio = pyttsx3.init()
+volume = engineio.getProperty('volume')
+engineio.setProperty('volume', volume+0.50)
+voices = engineio.getProperty('voices')
+engineio.setProperty('rate', 130)    # Aquí puedes seleccionar la velocidad de la voz
+engineio.setProperty('voice',voices[1].id)
+
 
 def explicit():
     from google.cloud import storage
@@ -27,6 +38,10 @@ def explicit():
     # Make an authenticated API request
     buckets = list(storage_client.list_buckets())
     print(buckets)
+
+def speak(text):
+    engineio.say(text)
+    engineio.runAndWait()
 
 def detect_intent_stream(project_id, session_id, audio_file_path,
                          language_code):
@@ -117,10 +132,17 @@ def detect_intent_texts(project_id, session_id, texts, language_code):
         response.query_result.intent_detection_confidence))
     print('Fulfillment text: {}\n'.format(
         response.query_result.fulfillment_text))
+    speak(format(
+        response.query_result.fulfillment_text))
+
 
 if __name__ == "__main__":
     try:
-        #detect_intent_texts(DIALOGFLOW_PROJECT_ID, SESSION_ID, TRY_PHRASE, DIALOGFLOW_LANGUAGE_CODE);
-        detect_intent_stream(DIALOGFLOW_PROJECT_ID, SESSION_ID, filename,DIALOGFLOW_LANGUAGE_CODE);
+
+         speak("Hi, how can I help you?")
+         record()
+        #detect_intent_texts(DIALOGFLOW_PROJECT_ID, SESSION_ID, TRY_PHRASE, DIALOGFLOW_LANGUAGE_CODE)
+         detect_intent_stream(DIALOGFLOW_PROJECT_ID, SESSION_ID, filename,DIALOGFLOW_LANGUAGE_CODE)
+
     except InvalidArgument:
         raise
