@@ -12,7 +12,7 @@ var vaseRotY = 0, paintRotY = 89.5;
 var lastPos = [], diffMove = [];
 var ping = 0;
 var go = 0, first = 1;
-var choise = -1;
+var choice = 1;
 
 //Video element selector
 v = document.getElementById(sourceVideo);
@@ -60,19 +60,19 @@ function initScene() {
     init(v.videoWidth, v.videoHeight);
     initLight();
     initPlane();
-    switch(choise){
+
+    switch(choice){
                     case '0':
                     initIdentity();
                     break;
                     case '1':
                     initPainting();
-
                     break;
                     case '2':
                     initVase();
                     break;
                     default:
-                    console.log("We don't have this choise "+choise);
+                    console.log("We don't have this choice "+choice);
                 }
     render();
 }
@@ -99,16 +99,17 @@ function postFile(file) {
             //draw the boxes
 
             if(first){
-            choise =objects.n;
-            initScene();
+            choice =objects.n;
+           // initScene();
             first = 0;
             }
             drawVase(objects);
             }
+
             //Send the next image
             imageCtx.drawImage(v, 0, 0, v.videoWidth, v.videoHeight, 0, 0, uploadWidth, uploadWidth * (v.videoHeight / v.videoWidth));
             imageCanvas.toBlob(postFile, 'image/jpeg');
-            console.log("onload function end");
+            console.log("onload function end choice is "+choice);
         }
         else{
             console.error(this.statusText);
@@ -147,12 +148,12 @@ function update() {
         il modello sia caricato */
         if (model  && go) {
 
-         if(choise === '2') vaseRotY += 0.007;
+         if(choice === '2') vaseRotY += 0.007;
         // vaseRotY = -89.5;
         var vector = new THREE.Vector3(X, Y, 0.5);
         var intersect = checkIntersect(vector);
 
-         if (choise == '2') model.rotation.y = vaseRotY;
+         if (choice == '2') model.rotation.y = vaseRotY;
         var n = intersect.length;
         //console.log("intersect length is "+n)
         // With position from OpenCV I could possibly move the Earth outside of the window

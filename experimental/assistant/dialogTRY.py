@@ -2,22 +2,32 @@ import dialogflow_v2 as dialogflow
 import json
 from google.api_core.exceptions import InvalidArgument
 from google.oauth2 import service_account
-from recordAudio import record
+from .recordAudio import record
 import random
 import string
 import pyttsx3
 import engineio
+import google.protobuf as pf
 
-dialogflow_key = json.load(open(r'accountKey.json'))
+#you have to give credentials in order to let it work
+dialogflow_key = json.load(open(r'./assistant/accountKey.json'))
 credentials = (service_account.Credentials.from_service_account_info(dialogflow_key))
+
+"""
 N=10
-filename = "nuovo_suono.wav"
+filename = "nuovo_audio.wav"
+#degug purposess
+painting = "painting.wav"
+identity = "identity.wav"
+vase = "vase.wav"
+final =""
 
 DIALOGFLOW_LANGUAGE_CODE = 'en-US'
 DIALOGFLOW_PROJECT_ID = 'chatcv'
 SESSION_ID = ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
 TRY_PHRASE = 'PAINTING'
 WELCOME_STRING = "Hi, How can I help you?"
+"""
 # parameters for voice
 engineio = pyttsx3.init()
 volume = engineio.getProperty('volume')
@@ -93,24 +103,25 @@ def detect_intent_stream(project_id, session_id, audio_file_path,
     # Note: The result from the last response is the final transcript along
     # with the detected content.
     query_result = response.query_result
-
+    if query_result.fulfillment_text is "":
+        return str(-1)
     print('=' * 20)
     print('Query text: {}'.format(query_result.query_text))
     print('Detected intent: {} (confidence: {})\n'.format(
         query_result.intent.display_name,
         query_result.intent_detection_confidence))
-    print('Fulfillment text: {}\n'.format(
-        query_result.fulfillment_text))
-
+    """print('Fulfillment text: {}\n'.format(
+        query_result.fulfillment_text))"""
+    print("IM HERE")
+    result = pf.json_format.MessageToJson(response.query_result)
+    result = json.loads(result)
+    return str(result["fulfillmentText"])
 
 def detect_intent_texts(project_id, session_id, texts, language_code):
     """Returns the result of detect intent with texts as inputs.
 
     Using the same `session_id` between requests allows continuation
     of the conversation."""
-
-
-
     session_client = dialogflow.SessionsClient(credentials=credentials)
 
     session = session_client.session_path(project_id, session_id)
@@ -130,19 +141,24 @@ def detect_intent_texts(project_id, session_id, texts, language_code):
     print('Detected intent: {} (confidence: {})\n'.format(
         response.query_result.intent.display_name,
         response.query_result.intent_detection_confidence))
+
     print('Fulfillment text: {}\n'.format(
         response.query_result.fulfillment_text))
-    speak(format(
-        response.query_result.fulfillment_text))
+
+
+"""
+DEBUG USE 
 
 
 if __name__ == "__main__":
     try:
 
-         speak("Hi, how can I help you?")
-         record()
+         #speak("Hi, how can I help you?")
+         #record()
         #detect_intent_texts(DIALOGFLOW_PROJECT_ID, SESSION_ID, TRY_PHRASE, DIALOGFLOW_LANGUAGE_CODE)
-         detect_intent_stream(DIALOGFLOW_PROJECT_ID, SESSION_ID, filename,DIALOGFLOW_LANGUAGE_CODE)
-
+         final = detect_intent_stream(DIALOGFLOW_PROJECT_ID, SESSION_ID, filename,DIALOGFLOW_LANGUAGE_CODE)
+         print(final)
+         print("QUI")
     except InvalidArgument:
         raise
+"""

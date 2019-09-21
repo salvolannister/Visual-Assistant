@@ -2,7 +2,7 @@ import pyaudio
 import wave
 import numpy as np
 from scipy.io import wavfile
-filename = "book_a_room.wav"
+filename = "nuovo_audio.wav"
 from pydub import AudioSegment
 
 def record():
@@ -51,6 +51,8 @@ def record():
 
 """
 DEBUG CODE IN ORDER TO CHECK WHAT YOU RECORD
+
+
 if __name__ == "__main__":
     
     
@@ -59,7 +61,7 @@ if __name__ == "__main__":
     # open the file and change it to mono
     
   
-    to hear what you recorded
+    # to hear what you recorded
     # Open the sound file
     chunk = 1024
     output = wavfile.read(filename)
@@ -82,5 +84,5 @@ if __name__ == "__main__":
     # Close and terminate the stream
     stream.close()
     p.terminate()
-    
+ 
 """
