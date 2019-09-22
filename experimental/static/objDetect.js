@@ -59,21 +59,20 @@ function startObjectDetection() {
 function initScene() {
     init(v.videoWidth, v.videoHeight);
     initLight();
-    initPlane();
-
     switch(choice){
-                    case '0':
+                    case 0:
                     initIdentity();
                     break;
-                    case '1':
+                    case 1:
                     initPainting();
                     break;
-                    case '2':
+                    case 2:
                     initVase();
                     break;
                     default:
                     console.log("We don't have this choice "+choice);
                 }
+    initPlane();
     render();
 }
 
@@ -100,9 +99,10 @@ function postFile(file) {
 
             if(first){
             choice =objects.n;
-           // initScene();
+            initScene();
             first = 0;
             }
+
             drawVase(objects);
             }
 
@@ -144,8 +144,12 @@ function checkIntersect(vector){
 
 // update position of objects on the scene
 function update() {
+        console.log("sono nell'update")
         /* bisogna aspettare che
         il modello sia caricato */
+        if(model == null)
+            console.log("model is null :( ")
+
         if (model  && go) {
 
          if(choice === '2') vaseRotY += 0.007;
@@ -173,6 +177,7 @@ function update() {
 
 function render() {
   update();
+
   //projection();
   renderer.setClearColor(0x000000, 0);
   renderer.render( scene, camera );

@@ -89,7 +89,7 @@ if __name__ == '__main__':
     
     choice= switch(choise)
 """
-    choice = 1;
-    webbrowser.open('http://127.0.0.1:5000/')
+    choice = 2;
+    webbrowser.open('http://127.0.0.1:5000/local')
     app.run();
 
