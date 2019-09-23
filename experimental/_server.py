@@ -82,14 +82,14 @@ if __name__ == '__main__':
           '#1: to show a paint on the wall \n'
           '#2 to show a vase on your table\n'
           'input: ')
-
+    """
     choise = ask();
     while choise == "-1":
         choise = ask()
     
     choice= switch(choise)
-"""
-    choice = 2;
+
+
     webbrowser.open('http://127.0.0.1:5000/local')
     app.run();
 

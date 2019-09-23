@@ -12,7 +12,7 @@ var vaseRotY = 0, paintRotY = 89.5;
 var lastPos = [], diffMove = [];
 var ping = 0;
 var go = 0, first = 1;
-var choice = 1;
+var choice = -1;
 
 //Video element selector
 v = document.getElementById(sourceVideo);
@@ -53,7 +53,7 @@ function startObjectDetection() {
     //Save and send the first image
     imageCtx.drawImage(v, 0, 0, v.videoWidth, v.videoHeight, 0, 0, uploadWidth, uploadWidth * (v.videoHeight / v.videoWidth));
     imageCanvas.toBlob(postFile, 'image/jpeg');
-    initScene();
+    //initScene();
 }
 
 function initScene() {
@@ -93,7 +93,9 @@ function postFile(file) {
             //console.log(objects);
             if (typeof objects.x === "undefined") {
                 console.log("something is undefined");
+                go = 0;
             }else{
+                go = 1;
              console.log("X " +objects.x+ " Y " +objects.y);
             //draw the boxes
 
@@ -120,11 +122,10 @@ function postFile(file) {
 }
 
 function drawVase(objects){
-
             X = -( objects.x/v.videoWidth * 2 - 1);
             Y = - objects.y/v.videoHeight * 2 + 1;
             console.log("X modified " +X+ " Y modified " +Y);
-            go = 1;
+
 }
 
 function checkIntersect(vector){
@@ -147,17 +148,15 @@ function update() {
         console.log("sono nell'update")
         /* bisogna aspettare che
         il modello sia caricato */
-        if(model == null)
-            console.log("model is null :( ")
 
         if (model  && go) {
 
-         if(choice === '2') vaseRotY += 0.007;
+         if(choice === 2) vaseRotY += 0.007;
         // vaseRotY = -89.5;
         var vector = new THREE.Vector3(X, Y, 0.5);
         var intersect = checkIntersect(vector);
 
-         if (choice == '2') model.rotation.y = vaseRotY;
+         if (choice == 2) model.rotation.y = vaseRotY;
         var n = intersect.length;
         //console.log("intersect length is "+n)
         // With position from OpenCV I could possibly move the Earth outside of the window
@@ -166,7 +165,7 @@ function update() {
             var point = intersect[0].point;
             model.position.x = point.x;
             model.position.y = point.y;
-            console.log("i go here in the update and intersect "+" x:"+point.x+ " y:"+point.y);
+            console.log("[UPDATE] intersect "+" x:"+point.x+ " y:"+point.y);
         }
 
         go = 0;
