@@ -1,8 +1,11 @@
 # Simple Video Assistant
 
-This project was created for the îComputer Visionî exam held in the year 2017/2018 in Polytechnic of Turin.The idea was to create a visual assistant that can answer to a user through a webcam using Augmented Reality (AR), exploiting the computer visionís technique learned in the course and exploring the world of îthree.jsî.
+This project was created for the ‚ÄùComputer Vision‚Äù exam held in the year 2017/2018 in Polytechnic of Turin.The idea was to create a visual assistant that can answer to a user through a webcam using Augmented Reality (AR), exploiting the computer vision‚Äôs technique learned in the course and exploring the world of ‚Äùthree.js‚Äù.
 
 To  use  the  application  the  user  should  hold  a  red  target,  or  better  leave  it  somewhere and ask the assistant to show him a vase, a painting or its identity.  After he should go to the browser and see which is the answer.
+
+![](Images/Doraimon.png)
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
