@@ -14,7 +14,7 @@ class ShapeDetector:
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.04 * peri, True)
 
-        #skill small or non convex object
+        #skips small or non convex object
         if math.fabs(cv2.contourArea(c) < 100 or not (cv2.isContourConvex(approx))):
             return shape
 
